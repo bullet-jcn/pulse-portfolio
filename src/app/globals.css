@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+:root {
+  --background: #080b10;
+  --foreground: #f4f7fb;
+  --muted: #8b95a5;
+  --border: rgba(255, 255, 255, 0.09);
+  --card: rgba(17, 22, 31, 0.78);
+  --accent: #78f0c8;
+}
+
+* {
+  border-color: var(--border);
+}
+html {
+  background: var(--background);
+}
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 75% -10%, rgba(57, 214, 165, 0.12), transparent 30rem),
+    radial-gradient(circle at 15% 0%, rgba(79, 109, 245, 0.1), transparent 25rem), var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+}
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+::selection {
+  background: rgba(120, 240, 200, 0.25);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-card: var(--card);
+  --color-accent: var(--accent);
+}
