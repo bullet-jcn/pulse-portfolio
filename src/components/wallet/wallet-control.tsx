@@ -42,7 +42,12 @@ export function WalletControl() {
     return (
       <div className="relative">
         <WalletButton onClick={() => setIsOpen((current) => !current)}>
-          <span className="size-2 rounded-full bg-[#07110e]" />
+          <span className="hidden sm:inline">
+            {connection.chain?.name ?? "Unsupported network"}
+          </span>
+
+          <span className="hidden h-4 w-px bg-[#07110e]/20 sm:block" />
+
           {shortenAddress(connection.address)}
           <ChevronDown size={15} />
         </WalletButton>
@@ -153,19 +158,31 @@ type AccountPanelProps = {
   connectorName: string;
   onClose: () => void;
 };
+type CopyStatus = "idle" | "copied" | "error";
 
 function AccountPanel({ address, chain, chainId, connectorName, onClose }: AccountPanelProps) {
   const supportedChain = supportedChains.find((candidate) => candidate.id === chainId);
-  const balance = useBalance({ address, chainId: supportedChain?.id });
+  const balance = useBalance({
+    address,
+    chainId: supportedChain?.id,
+    query: { enabled: Boolean(supportedChain) },
+  });
   const disconnect = useDisconnect();
   const switchChain = useSwitchChain();
-  const [copied, setCopied] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<CopyStatus>("idle");
   const explorerUrl = chain?.blockExplorers?.default.url;
 
   async function copyAddress() {
-    await navigator.clipboard.writeText(address);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1_500);
+    try {
+      await navigator.clipboard.writeText(address);
+      setCopyStatus("copied");
+    } catch {
+      setCopyStatus("error");
+    }
+
+    window.setTimeout(() => {
+      setCopyStatus("idle");
+    }, 1_500);
   }
 
   return (
@@ -183,8 +200,10 @@ function AccountPanel({ address, chain, chainId, connectorName, onClose }: Accou
 
       <div className="mt-4 rounded-xl bg-white/[.035] p-4">
         <p className="text-muted text-xs">Native balance</p>
-        <p className="mt-1 text-xl font-semibold">{formatBalance(balance)}</p>
-        {balance.isError && (
+        <p className="mt-1 text-xl font-semibold">
+          {supportedChain ? formatBalance(balance) : "Unsupported network"}
+        </p>
+        {supportedChain && balance.isError && (
           <button className="text-accent mt-2 text-xs" onClick={() => balance.refetch()}>
             Retry balance
           </button>
@@ -200,18 +219,18 @@ function AccountPanel({ address, chain, chainId, connectorName, onClose }: Accou
       <div className="mt-4">
         <p className="text-muted mb-2 text-xs">Network</p>
         <div className="grid grid-cols-2 gap-2">
-          {supportedChains.map((chain) => (
+          {supportedChains.map((targetChain) => (
             <button
-              key={chain.id}
+              key={targetChain.id}
               disabled={switchChain.isPending}
-              onClick={() => switchChain.mutate({ chainId: chain.id })}
+              onClick={() => switchChain.mutate({ chainId: targetChain.id })}
               className={cn(
                 "flex items-center justify-between rounded-lg border px-3 py-2 text-xs transition hover:bg-white/5",
-                chainId === chain.id && "border-accent/40 bg-accent/[.06]",
+                chainId === targetChain.id && "border-accent/40 bg-accent/[.06]",
               )}
             >
-              {chain.name}
-              {chainId === chain.id && <Check size={14} className="text-accent" />}
+              {targetChain.name}
+              {chainId === targetChain.id && <Check size={14} className="text-accent" />}
             </button>
           ))}
         </div>
@@ -219,8 +238,8 @@ function AccountPanel({ address, chain, chainId, connectorName, onClose }: Accou
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-2 border-t pt-4">
-        <AccountAction onClick={copyAddress} icon={copied ? <Check /> : <Copy />}>
-          {copied ? "Copied" : "Copy"}
+        <AccountAction onClick={copyAddress} icon={copyStatus === "copied" ? <Check /> : <Copy />}>
+          {copyStatus === "copied" ? "Copied" : copyStatus === "error" ? "Copy failed" : "Copy"}
         </AccountAction>
         {explorerUrl ? (
           <a
