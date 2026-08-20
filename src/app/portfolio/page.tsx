@@ -1,34 +1,8 @@
-import { ArrowDownLeft, ArrowUpRight, MoreHorizontal } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { NativeBalancesCard } from "@/features/portfolio/native-balances-card";
 import { NativePortfolioStats } from "@/features/portfolio/native-portfolio-stats";
-
-const assets = [
-  {
-    symbol: "ETH",
-    name: "Ethereum",
-    amount: "3.42 ETH",
-    value: "$10,284.18",
-    change: "+3.8%",
-    color: "#6687ff",
-  },
-  {
-    symbol: "USDC",
-    name: "USD Coin",
-    amount: "5,200 USDC",
-    value: "$5,200.00",
-    change: "+0.0%",
-    color: "#4d9fea",
-  },
-  {
-    symbol: "ARB",
-    name: "Arbitrum",
-    amount: "2,840 ARB",
-    value: "$2,556.00",
-    change: "+1.7%",
-    color: "#56b4e9",
-  },
-];
+import { TokenAssetsCard } from "@/features/portfolio/token-assets-card";
 
 export default function PortfolioPage() {
   return (
@@ -45,41 +19,7 @@ export default function PortfolioPage() {
       <NativePortfolioStats />
       <NativeBalancesCard />
       <section className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
-        <Card className="overflow-hidden">
-          <div className="flex items-center justify-between border-b p-5">
-            <div>
-              <h2 className="font-semibold">Assets</h2>
-              <p className="text-muted mt-1 text-xs">Holdings across supported networks</p>
-            </div>
-            <button aria-label="Asset options" className="text-muted">
-              <MoreHorizontal />
-            </button>
-          </div>
-          <div className="divide-y divide-white/[.06]">
-            {assets.map((a) => (
-              <div
-                key={a.symbol}
-                className="grid grid-cols-[1fr_auto] items-center gap-3 p-4 sm:grid-cols-[1.2fr_1fr_1fr_auto] sm:px-5"
-              >
-                <div className="flex items-center gap-3">
-                  <span
-                    style={{ background: a.color }}
-                    className="grid size-10 place-items-center rounded-full text-xs font-bold"
-                  >
-                    {a.symbol[0]}
-                  </span>
-                  <span>
-                    <b className="block text-sm">{a.symbol}</b>
-                    <small className="text-muted">{a.name}</small>
-                  </span>
-                </div>
-                <span className="text-muted hidden text-sm sm:block">{a.amount}</span>
-                <span className="text-right text-sm font-medium">{a.value}</span>
-                <span className="text-accent hidden text-xs sm:block">{a.change}</span>
-              </div>
-            ))}
-          </div>
-        </Card>
+        <TokenAssetsCard />
         <Card className="p-5">
           <div className="flex items-center justify-between">
             <div>
