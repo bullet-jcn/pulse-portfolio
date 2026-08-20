@@ -1,7 +1,7 @@
 import { ArrowDownLeft, ArrowUpRight, MoreHorizontal } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { StatCard } from "@/components/dashboard/stat-card";
 import { NativeBalancesCard } from "@/features/portfolio/native-balances-card";
+import { NativePortfolioStats } from "@/features/portfolio/native-portfolio-stats";
 
 const assets = [
   {
@@ -40,14 +40,9 @@ export default function PortfolioPage() {
             Your portfolio
           </h1>
         </div>
-        <p className="text-muted text-sm">Updated just now · Preview data</p>
+        <p className="text-muted text-sm">Live wallet data · Preview modules are labeled</p>
       </section>
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Net worth" value="$18,420.32" detail="+$503.12 today (2.81%)" positive />
-        <StatCard label="Assets" value="12" detail="Across 4 networks" />
-        <StatCard label="DeFi positions" value="$4,280.40" detail="23.2% of portfolio" />
-        <StatCard label="Stablecoins" value="$5,000.00" detail="27.1% allocation" />
-      </section>
+      <NativePortfolioStats />
       <NativeBalancesCard />
       <section className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
         <Card className="overflow-hidden">

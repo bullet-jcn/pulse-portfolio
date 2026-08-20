@@ -4,6 +4,7 @@ import { formatUnits } from "viem";
 import { useConnection } from "wagmi";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { calculateTotalValue, formatUsd } from "./portfolio-value";
 import { useAssetPrices, type AssetPrice, type AssetSymbol } from "./use-asset-prices";
 import { useNativeBalances, type NativeBalanceResult } from "./use-native-balances";
 
@@ -91,33 +92,6 @@ function PriceValue({
       </span>
     </p>
   );
-}
-
-function calculateTotalValue(
-  balances: NativeBalanceResult[],
-  prices: Partial<Record<AssetSymbol, AssetPrice>> | undefined,
-) {
-  if (!prices || balances.some((result) => result.status === "loading")) {
-    return undefined;
-  }
-
-  return balances.reduce((total, result) => {
-    if (result.status !== "success" || !result.balance) return total;
-
-    const price = prices[result.balance.symbol as AssetSymbol];
-    if (!price) return total;
-
-    const amount = Number(formatUnits(result.balance.value, result.balance.decimals));
-    return total + amount * price.usd;
-  }, 0);
-}
-
-function formatUsd(value: number) {
-  return value.toLocaleString(undefined, {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 2,
-  });
 }
 
 function formatNativeBalance(result: NativeBalanceResult) {
