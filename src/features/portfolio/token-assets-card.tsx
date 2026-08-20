@@ -4,7 +4,7 @@ import { LoaderCircle, RefreshCw } from "lucide-react";
 import { useConnection } from "wagmi";
 import { Card } from "@/components/ui/card";
 import type { PortfolioToken } from "@/lib/alchemy-portfolio";
-import { formatUsd } from "./portfolio-value";
+import { formatUsd, summarizeTokens } from "./portfolio-value";
 import { TokenPortfolioError, useTokenPortfolio } from "./use-token-portfolio";
 
 const networkLabels: Record<PortfolioToken["network"], string> = {
@@ -88,32 +88,45 @@ function TokenAssetsContent({
     );
   }
 
+  const visibleTokens = tokens.slice(0, 20);
+  const summary = summarizeTokens(tokens);
+
   return (
-    <div className="divide-y divide-white/[.06]">
-      {tokens.slice(0, 20).map((token) => (
-        <div
-          key={`${token.network}:${token.contractAddress}`}
-          className="grid grid-cols-[1fr_auto] items-center gap-3 p-4 sm:grid-cols-[1.2fr_1fr_1fr] sm:px-5"
-        >
-          <div className="flex min-w-0 items-center gap-3">
-            <span className="bg-accent/10 text-accent grid size-10 shrink-0 place-items-center rounded-full text-xs font-bold">
-              {token.symbol.slice(0, 1)}
+    <div>
+      <div className="text-muted flex flex-wrap items-center justify-between gap-2 border-b px-5 py-3 text-xs">
+        <span>
+          Showing {visibleTokens.length} of {tokens.length} assets
+        </span>
+        {summary && summary.unpricedCount > 0 && (
+          <span>{summary.unpricedCount} unpriced assets excluded from totals</span>
+        )}
+      </div>
+      <div className="divide-y divide-white/[.06]">
+        {visibleTokens.map((token) => (
+          <div
+            key={`${token.network}:${token.contractAddress}`}
+            className="grid grid-cols-[1fr_auto] items-center gap-3 p-4 sm:grid-cols-[1.2fr_1fr_1fr] sm:px-5"
+          >
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="bg-accent/10 text-accent grid size-10 shrink-0 place-items-center rounded-full text-xs font-bold">
+                {token.symbol.slice(0, 1)}
+              </span>
+              <span className="min-w-0">
+                <b className="block truncate text-sm">{token.symbol}</b>
+                <small className="text-muted block truncate">
+                  {token.name} · {networkLabels[token.network]}
+                </small>
+              </span>
+            </div>
+            <span className="text-muted hidden truncate text-sm sm:block">
+              {formatTokenAmount(token.balance)} {token.symbol}
             </span>
-            <span className="min-w-0">
-              <b className="block truncate text-sm">{token.symbol}</b>
-              <small className="text-muted block truncate">
-                {token.name} · {networkLabels[token.network]}
-              </small>
+            <span className="text-right text-sm font-medium">
+              {token.valueUsd === undefined ? "Price unavailable" : formatUsd(token.valueUsd)}
             </span>
           </div>
-          <span className="text-muted hidden truncate text-sm sm:block">
-            {formatTokenAmount(token.balance)} {token.symbol}
-          </span>
-          <span className="text-right text-sm font-medium">
-            {token.valueUsd === undefined ? "Price unavailable" : formatUsd(token.valueUsd)}
-          </span>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

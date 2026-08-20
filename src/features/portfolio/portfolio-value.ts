@@ -1,4 +1,5 @@
 import { formatUnits } from "viem";
+import type { PortfolioToken } from "@/lib/alchemy-portfolio";
 import type { AssetPrice, AssetSymbol } from "./use-asset-prices";
 import type { NativeBalanceResult } from "./use-native-balances";
 
@@ -27,4 +28,35 @@ export function formatUsd(value: number) {
     currency: "USD",
     maximumFractionDigits: 2,
   });
+}
+
+const stablecoinSymbols = new Set(["USDC", "USDT", "DAI", "USDS", "FRAX", "LUSD", "GHO"]);
+
+export function summarizeTokens(tokens: PortfolioToken[] | undefined) {
+  if (!tokens) return undefined;
+
+  return tokens.reduce(
+    (summary, token) => {
+      if (token.valueUsd === undefined) {
+        summary.unpricedCount += 1;
+        return summary;
+      }
+
+      summary.tokenValueUsd += token.valueUsd;
+      summary.pricedCount += 1;
+
+      if (stablecoinSymbols.has(token.symbol.toUpperCase())) {
+        summary.stablecoinValueUsd += token.valueUsd;
+      }
+
+      return summary;
+    },
+    {
+      tokenCount: tokens.length,
+      pricedCount: 0,
+      unpricedCount: 0,
+      tokenValueUsd: 0,
+      stablecoinValueUsd: 0,
+    },
+  );
 }
